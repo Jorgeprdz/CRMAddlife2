@@ -1,0 +1,577 @@
+/* =============================================
+   CRM ADDLIFE — ONE UI 8.5 MINIMALISTA
+   ============================================= */
+
+:root {
+    --bg:             #f2f2f7;
+    --surface:        #ffffff;
+    --surface-2:      #f7f7f9;
+    --text-primary:   #1c1c1e;
+    --text-secondary: #6e6e73;
+    --text-tertiary:  #aeaeb2;
+    --accent:         #007AFF;
+    --accent-soft:    rgba(0, 122, 255, 0.12);
+    --danger:         #FF3B30;
+    --success:        #34C759;
+    --warning:        #FF9500;
+    --separator:      rgba(60, 60, 67, 0.12);
+
+    --blur-bg-light:  rgba(242, 242, 247, 0.82);
+    --blur-bg-nav:    rgba(255, 255, 255, 0.78);
+    --blur-strength:  saturate(180%) blur(22px);
+
+    --radius-card:    22px;
+    --radius-pill:    100px;
+    --shadow-card:    0 2px 16px rgba(0,0,0,0.06);
+    --shadow-float:   0 8px 32px rgba(0,0,0,0.10);
+    --dur:            0.28s;
+}
+
+[data-theme='dark'] {
+    --bg:             #1c1c1e;
+    --surface:        #2c2c2e;
+    --surface-2:      #3a3a3c;
+    --text-primary:   #f5f5f7;
+    --text-secondary: #aeaeb2;
+    --text-tertiary:  #6e6e73;
+    --separator:      rgba(255, 255, 255, 0.10);
+    --blur-bg-light:  rgba(28, 28, 30, 0.85);
+    --blur-bg-nav:    rgba(38, 38, 40, 0.80);
+    --shadow-card:    0 2px 16px rgba(0,0,0,0.28);
+    --shadow-float:   0 8px 32px rgba(0,0,0,0.38);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, 'SF Pro Text', sans-serif;
+    background-color: var(--bg);
+    color: var(--text-primary);
+    padding-bottom: 120px;
+    padding-top: 76px;
+    transition: background-color var(--dur) ease, color var(--dur) ease;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---- HEADER SUPERIOR ---- */
+.app-header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    height: 64px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px;
+    background: var(--blur-bg-light);
+    -webkit-backdrop-filter: var(--blur-strength);
+    backdrop-filter: var(--blur-strength);
+    border-bottom: 1px solid var(--separator);
+    transition: background var(--dur) ease;
+}
+
+.app-header-title { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+
+/* ---- TOGGLE MODO OSCURO (iOS Style) ---- */
+.ios-toggle-wrap { display: flex; align-items: center; gap: 8px; }
+.toggle-icon { font-size: 14px; color: var(--text-tertiary); user-select: none; }
+.ios-toggle { position: relative; width: 51px; height: 31px; cursor: pointer; }
+.ios-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+.ios-toggle-track {
+    position: absolute; inset: 0; border-radius: var(--radius-pill);
+    background: #d1d1d6; transition: background var(--dur) ease;
+}
+.ios-toggle input:checked + .ios-toggle-track { background: var(--accent); }
+
+.ios-toggle-thumb {
+    position: absolute; top: 2px; left: 2px; width: 27px; height: 27px;
+    border-radius: 50%; background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+    transition: transform var(--dur) ease;
+}
+.ios-toggle input:checked ~ .ios-toggle-thumb { transform: translateX(20px); }
+
+/* ---- TARJETAS BASE ---- */
+.card {
+    background: var(--surface) !important;
+    border-radius: var(--radius-card) !important;
+    padding: 20px !important;
+    margin: 16px !important;
+    box-shadow: var(--shadow-card) !important;
+    border: 1px solid var(--separator);
+    transition: background var(--dur) ease, border-color var(--dur) ease;
+}
+
+h2 { font-size: 16px; margin-bottom: 12px; font-weight: 600; }
+
+/* ---- FORMULARIOS Y BOTONES ---- */
+button, input, select, textarea {
+    border-radius: 14px !important;
+    padding: 12px 16px !important;
+    border: 1px solid var(--separator);
+    font-size: 15px; font-family: inherit; outline: none;
+    background: var(--surface-2); color: var(--text-primary);
+    transition: border-color var(--dur) ease;
+    width: 100%;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+.btn-primary { 
+    background: var(--accent) !important; color: #fff !important; 
+    border: none; font-weight: 600; cursor: pointer; 
+}
+.btn-secondary { 
+    background: var(--surface-2) !important; color: var(--text-primary) !important; 
+    font-weight: 600; cursor: pointer; border: 1px solid var(--separator);
+}
+
+/* ---- NAVEGACIÓN FLOTANTE MAGNÉTICA (4 POR VISTA) ---- */
+.bottom-nav {
+    display: flex; position: fixed; bottom: 20px; left: 50%;
+    transform: translateX(-50%); width: calc(100% - 32px); max-width: 440px;
+    background: var(--blur-bg-nav);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-radius: 28px; 
+    padding: 10px 0; /* Padding horizontal en 0 para cálculo exacto del 25% */
+    box-shadow: var(--shadow-float); border: 1px solid var(--separator);
+    z-index: 950;
+    
+    /* Configuración de scroll elástico y magnético */
+    overflow-x: auto; 
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; 
+}
+.bottom-nav::-webkit-scrollbar { display: none; }
+
+.nav-btn {
+    /* Fuerza a mostrar exactamente 4 elementos por pantalla */
+    flex: 0 0 25%; 
+    scroll-snap-align: start;
+    
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; background: transparent !important; border: none !important;
+    color: var(--text-tertiary); font-size: 10px; font-weight: 500;
+    cursor: pointer; padding: 0 !important; min-height: 44px;
+}
+.nav-btn .icon { font-size: 20px; margin-bottom: 3px; transition: transform 0.2s ease; }
+.nav-btn.active { color: var(--accent); }
+.nav-btn-logout { color: var(--danger) !important; }
+.nav-btn:active .icon { transform: scale(0.88); }
+
+/* ---- ETIQUETAS Y BADGES ---- */
+.badge { 
+    display: inline-flex; align-items: center; padding: 4px 10px; 
+    border-radius: var(--radius-pill); font-size: 12px; font-weight: 600; 
+}
+.badge-blue { background: var(--accent-soft); color: var(--accent); }
+.badge-green { background: rgba(52,199,89,0.12); color: var(--success); }
+.badge-red { background: rgba(255,59,48,0.12); color: var(--danger); }
+.badge-orange { background: rgba(255,149,0,0.12); color: var(--warning); }
+
+.fw-600 { font-weight: 600; }
+.mt-8 { margin-top: 8px; }
+
+/* ---- WIDGETS DE FINANZAS ---- */
+.widget-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 16px;
+}
+.widget {
+    background: var(--surface);
+    border-radius: 22px;
+    padding: 16px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--separator);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: background var(--dur) ease, border-color var(--dur) ease;
+}
+.widget-full {
+    grid-column: span 2;
+}
+.widget-title {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+.widget-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+/* =========================================
+   UI CHATBOT AI MENTOR
+   ========================================= */
+.chat-bubble-trigger {
+    position: fixed;
+    bottom: 95px;
+    right: 20px;
+    width: 54px;
+    height: 54px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,122,255,0.35);
+    z-index: 1000;
+    transition: transform 0.2s ease;
+}
+.chat-bubble-trigger .icon-chat { font-size: 24px; color: white; }
+
+.chat-window-modal {
+    position: fixed;
+    bottom: 165px;
+    right: 20px;
+    width: calc(100vw - 40px);
+    max-width: 340px;
+    height: 60vh;
+    max-height: 440px;
+    background: var(--blur-bg-nav);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    display: none;
+    flex-direction: column;
+    box-shadow: var(--shadow-float);
+    border: 1px solid var(--separator);
+    z-index: 1000;
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chat-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--separator);
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.02);
+}
+.chat-title-group { display: flex; align-items: center; gap: 8px; }
+.chat-title-group .icon-bot { font-size: 18px; }
+.chat-title-group .title-bot { font-size: 14px; letter-spacing: -0.2px; color: var(--text-primary); }
+
+.chat-close-btn {
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+    background: var(--separator);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: var(--text-secondary);
+}
+
+.chat-messages-container {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.msg-row { display: flex; width: 100%; }
+.msg-row.user-row { justify-content: flex-end; }
+.msg-row.ia-row { justify-content: flex-start; }
+
+.chat-bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+.user-bubble { background-color: #007AFF; color: #fff; border-bottom-right-radius: 4px; }
+.ia-bubble { background-color: var(--surface-2); color: var(--text-primary); border-bottom-left-radius: 4px; border: 1px solid var(--separator); }
+
+.chat-input-area {
+    padding: 10px 12px;
+    border-top: 1px solid var(--separator);
+    background: var(--surface);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+#ai-chat-input {
+    flex: 1;
+    border: 1px solid var(--separator);
+    border-radius: 18px;
+    padding: 8px 14px;
+    background: var(--surface-2);
+    font-size: 13px;
+    outline: none;
+    width: auto;
+    color: var(--text-primary);
+}
+.chat-send-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50% !important;
+    background: var(--accent) !important;
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0 !important;
+    flex-shrink: 0;
+}
+
+/* FIX: Adaptabilidad para Landscape en Móviles */
+@media (orientation: landscape) and (max-height: 500px) {
+    .chat-window-modal {
+        height: 75vh !important;
+        bottom: 70px !important;
+        max-height: 320px !important;
+    }
+}
+/* SISTEMA UI PREMIUM - AÑADIR AL FINAL DE STYLES.CSS */
+.app-header { display:flex; justify-content:space-between; align-items:center; padding:12px 20px; background:var(--surface); border-bottom:1px solid var(--separator); position:sticky; top:0; z-index:100; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); background:rgba(255,255,255,0.85); }
+[data-theme="dark"] .app-header { background:rgba(28,28,30,0.85); }
+
+/* iOS Widgets (Actividad) */
+.ios-widget { background:var(--surface); border-radius:20px; padding:16px; box-shadow:0 4px 15px rgba(0,0,0,0.04); border:1px solid rgba(255,255,255,0.2); display:flex; flex-direction:column; justify-content:space-between; }
+[data-theme="dark"] .ios-widget { background:var(--surface-2); border:1px solid rgba(255,255,255,0.05); }
+
+/* Chatbot Glassmorphism */
+.chat-bubble-trigger { position:fixed; bottom:95px; right:20px; width:56px; height:56px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(0,122,255,0.4); cursor:pointer; z-index:1000; font-size:24px; transition:transform 0.2s ease; }
+.chat-bubble-trigger:active { transform:scale(0.9); }
+
+.chat-window-modal { position:fixed; bottom:165px; right:20px; width:calc(100vw - 40px); max-width:360px; height:65vh; max-height:500px; background:rgba(255,255,255,0.8); -webkit-backdrop-filter:blur(25px); backdrop-filter:blur(25px); border-radius:24px; display:none; flex-direction:column; box-shadow:0 20px 40px rgba(0,0,0,0.15); border:1px solid rgba(255,255,255,0.3); z-index:1000; overflow:hidden; }
+[data-theme="dark"] .chat-window-modal { background:rgba(28,28,30,0.75); border:1px solid rgba(255,255,255,0.1); box-shadow:0 20px 40px rgba(0,0,0,0.5); }
+
+.chat-messages-container { flex:1; padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; scroll-behavior:smooth; }
+.chat-bubble { max-width:80%; padding:12px 16px; border-radius:20px; font-size:14px; line-height:1.4; word-wrap:break-word; }
+.user-bubble { background:#007AFF; color:#fff; border-bottom-right-radius:4px; align-self:flex-end; box-shadow:0 4px 10px rgba(0,122,255,0.2); }
+.ia-bubble { background:var(--surface-2); color:var(--text-primary); border-bottom-left-radius:4px; align-self:flex-start; border:1px solid var(--separator); }
+
+.chat-input-area { padding:12px; border-top:1px solid var(--separator); background:rgba(255,255,255,0.5); display:flex; gap:8px; align-items:center; }
+[data-theme="dark"] .chat-input-area { background:rgba(0,0,0,0.2); }
+#ai-chat-input { flex:1; border:1px solid var(--separator); border-radius:20px; padding:10px 16px; background:var(--surface); font-size:14px; outline:none; }
+.chat-send-btn { width:38px; height:38px; border-radius:50%; background:var(--accent); border:none; color:white; font-size:18px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+/* =========================================================================
+   SISTEMA UI PREMIUM 8.5 (Mobile First, Glassmorphism, Fluid)
+   ========================================================================= */
+
+/* Limpieza de contenedores obsoletos */
+main {
+    width: 100% !important;
+    max-width: 600px !important; /* Limita ancho solo en PC, full width en celular */
+    margin: 0 auto;
+    padding: 16px;
+    padding-bottom: 100px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+/* Glass Widgets Globales (Reemplaza .card) */
+.glass-widget {
+    background: rgba(255, 255, 255, 0.7);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-sizing: border-box;
+    width: 100%;
+}
+[data-theme="dark"] .glass-widget {
+    background: rgba(30, 30, 32, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Inputs Premium translúcidos */
+.glass-input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(150, 150, 150, 0.2);
+    background: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    color: var(--text-primary);
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.glass-input:focus {
+    background: var(--surface);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,122,255,0.15);
+}
+[data-theme="dark"] .glass-input { background: rgba(0, 0, 0, 0.2); }
+
+.glass-output {
+    background: rgba(0,0,0,0.03);
+    padding: 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+[data-theme="dark"] .glass-output { background: rgba(0,0,0,0.2); }
+
+/* Badges y Botones Orgánicos */
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.status-card {
+    border-left: 5px solid var(--status-color);
+    box-shadow: -4px 0 20px rgba(0,0,0,0.02); /* Sombra base suave, el glow vía css variable no anida bien en box-shadow sin calc complejo, por lo que usamos opacity en el dom */
+}
+
+/* Redimensionamiento de botones para móviles */
+.btn-primary, .btn-secondary {
+    border-radius: 14px;
+    padding: 14px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: transform 0.1s ease, filter 0.1s;
+}
+.btn-primary:active, .btn-secondary:active {
+    transform: scale(0.96);
+}
+.btn-sm {
+    padding: 8px 16px !important;
+    font-size: 12px !important;
+    border-radius: 12px;
+}
+.route-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.ui-toast {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-24px);
+    opacity: 0;
+    transition: all 0.22s ease;
+    z-index: 6000;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    max-width: min(90vw, 420px);
+
+    padding: 12px 16px;
+
+    border-radius: 18px;
+
+    background: rgba(28,28,30,0.92);
+
+    color: white;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+
+    font-size: 14px;
+
+    backdrop-filter: blur(12px);
+
+    word-break: break-word;
+}
+
+.ui-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.ui-modal-overlay {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0,0,0,0.4);
+
+    opacity: 0;
+
+    transition: opacity 0.18s ease;
+}
+
+.ui-modal-overlay.visible {
+    opacity: 1;
+}
+
+.ui-modal {
+    width: min(92vw, 340px);
+
+    background: var(--surface, white);
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    transform: scale(0.96);
+
+    transition: transform 0.18s ease;
+}
+
+.ui-modal-overlay.visible .ui-modal {
+    transform: scale(1);
+}
+
+.ui-modal-body {
+    padding: 22px;
+}
+
+.ui-modal-title {
+    margin: 0 0 10px;
+}
+
+.ui-modal-text {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.ui-modal-actions {
+    display: flex;
+    border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+.ui-modal-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 14px;
+    cursor: pointer;
+}
+
+.ui-modal-btn.primary {
+    color: #007aff;
+}
+
+.ui-modal-btn.danger {
+    color: #ff3b30;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    * {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
