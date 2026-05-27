@@ -2,41 +2,53 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" ...>
-    <title>CRM Addlife Professional</title>
-
-    <!-- KILL SW — quitar después de confirmar fix -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(regs => {
-          regs.forEach(r => r.unregister());
-        });
-        caches.keys().then(keys => {
-          keys.forEach(k => caches.delete(k));
-        });
-      }
-    </script>
-
-    <link rel="stylesheet" href="styles.css">
-    ...
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CRM Addlife Professional</title>
+
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
+
     <meta name="theme-color" id="meta-theme-color" content="#F2F2F7">
-    <!-- Supabase: cambiado a unpkg por mayor estabilidad -->
+
+    <!--
+        SUPABASE SDK
+        Cargado como UMD global antes que app.js (que es module).
+        AuthService en app.js accede a window.supabase.createClient().
+        Versión fijada a @2 — actualizar con intención, no automáticamente.
+    -->
     <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <!-- DEBUG: Eruda consola móvil — QUITAR ANTES DE PRODUCCIÓN -->
-    <script src="//cdn.jsdelivr.net/npm/eruda"></script>
-    <script>eruda.init();</script>
+
+    <!--
+        VARIABLES DE ENTORNO
+        Inyectadas por el proceso de build / hosting (Netlify, Vercel, etc.).
+        NUNCA hardcodear SUPABASE_KEY aquí.
+        En desarrollo local, este bloque puede ser generado por un script de build.
+        En producción, el hosting lo inyecta antes del deploy.
+
+        Ejemplo de script de build para desarrollo:
+            echo "window.__ENV__ = { SUPABASE_URL: '...', SUPABASE_KEY: '...' };" > env.js
+
+        En producción (Netlify/Vercel) usar variables de entorno del dashboard
+        y un plugin que genere este bloque automáticamente.
+    -->
+    <script src="env.js" onerror="console.warn('[ENV] env.js no encontrado — usando window.__ENV__ vacío');window.__ENV__=window.__ENV__||{};"></script>
+
 </head>
 <body>
 
-    <!-- Header -->
+    <!-- ═══════════════════════════════════════════════════════
+         HEADER
+         Avatar, nombre y toggle de tema.
+         Hidratado por AppManager.init() tras autenticación.
+    ═══════════════════════════════════════════════════════ -->
     <header class="app-header" id="main-header">
         <div style="display:flex; align-items:center; gap:10px;">
-            <img id="header-avatar" src="" style="width:36px; height:36px; border-radius:50%; display:none; border:2px solid var(--accent); object-fit:cover;">
+            <img
+                id="header-avatar"
+                src=""
+                alt="Avatar de usuario"
+                style="width:36px; height:36px; border-radius:50%; display:none; border:2px solid var(--accent); object-fit:cover;"
+            >
             <div style="display:flex; flex-direction:column;">
                 <span id="header-greeting" style="font-size:11px; color:var(--text-secondary); font-weight:500;">CRM Addlife</span>
                 <strong id="header-name" style="font-size:15px; color:var(--text-primary);">Inicia sesión</strong>
@@ -44,7 +56,7 @@
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
             <div class="ios-toggle-wrap">
-                <label class="ios-toggle">
+                <label class="ios-toggle" aria-label="Cambiar tema">
                     <input type="checkbox" id="theme-toggle">
                     <div class="ios-toggle-track"></div>
                     <div class="ios-toggle-thumb"></div>
@@ -53,51 +65,70 @@
         </div>
     </header>
 
-    <!-- Contenido principal -->
-    <main id="app-content"></main>
+    <!-- ═══════════════════════════════════════════════════════
+         CONTENIDO PRINCIPAL
+         Vaciado y re-renderizado por EnterpriseRouter.navigate().
+         Nunca manipular directamente desde módulos — usar RenderEngine.
+    ═══════════════════════════════════════════════════════ -->
+    <main id="app-content" role="main"></main>
 
-    <!-- Nav inferior -->
-    <nav id="main-sidebar" class="bottom-nav" style="display:none;">
-        <button class="nav-btn active" data-target="dashboard">
-            <span class="icon">🏠</span><span class="label">Inicio</span>
+    <!-- ═══════════════════════════════════════════════════════
+         NAVEGACIÓN INFERIOR
+         Oculta hasta que el usuario autentique (display:none).
+         AppManager.init() la muestra tras auth exitosa.
+         Los data-target deben coincidir exactamente con las
+         claves del objeto routes en EnterpriseRouter.
+    ═══════════════════════════════════════════════════════ -->
+    <nav id="main-sidebar" class="bottom-nav" style="display:none;" aria-label="Navegación principal">
+        <button class="nav-btn active" data-target="dashboard" aria-label="Inicio">
+            <span class="icon" aria-hidden="true">🏠</span>
+            <span class="label">Inicio</span>
         </button>
-        <button class="nav-btn" data-target="prospeccion">
-            <span class="icon">🎯</span><span class="label">Embudo</span>
+        <button class="nav-btn" data-target="prospeccion" aria-label="Embudo de prospección">
+            <span class="icon" aria-hidden="true">🎯</span>
+            <span class="label">Embudo</span>
         </button>
-        <button class="nav-btn" data-target="referidos">
-            <span class="icon">👥</span><span class="label">Directorio</span>
+        <button class="nav-btn" data-target="referidos" aria-label="Directorio de referidos">
+            <span class="icon" aria-hidden="true">👥</span>
+            <span class="label">Directorio</span>
         </button>
-        <button class="nav-btn" data-target="actividad">
-            <span class="icon">📈</span><span class="label">Actividad</span>
+        <button class="nav-btn" data-target="actividad" aria-label="Registro de actividad">
+            <span class="icon" aria-hidden="true">📈</span>
+            <span class="label">Actividad</span>
         </button>
-        <button class="nav-btn" data-target="cartera">
-            <span class="icon">💼</span><span class="label">Cartera</span>
+        <button class="nav-btn" data-target="cartera" aria-label="Cartera de clientes">
+            <span class="icon" aria-hidden="true">💼</span>
+            <span class="label">Cartera</span>
         </button>
-        <button class="nav-btn" data-target="comisiones">
-            <span class="icon">💰</span><span class="label">Finanzas</span>
+        <button class="nav-btn" data-target="comisiones" aria-label="Finanzas y comisiones">
+            <span class="icon" aria-hidden="true">💰</span>
+            <span class="label">Finanzas</span>
         </button>
-        <!-- Botón cerrar sesión -->
-        <button class="nav-btn nav-btn-logout" id="btn-cerrar-sesion" style="color:var(--danger);">
-            <span class="icon">🚪</span><span class="label">Salir</span>
+        <button class="nav-btn nav-btn-logout" id="btn-cerrar-sesion" style="color:var(--danger);" aria-label="Cerrar sesión">
+            <span class="icon" aria-hidden="true">🚪</span>
+            <span class="label">Salir</span>
         </button>
     </nav>
 
-    <!-- Chat bubble flotante -->
-    <div id="ai-chat-bubble" class="chat-bubble-trigger" style="display:none;">💬</div>
+    <!-- ═══════════════════════════════════════════════════════
+         AI CHAT
+         Bubble y ventana de chat con el asistente comercial.
+         Ocultos hasta auth. Controlados por AppManager.
+    ═══════════════════════════════════════════════════════ -->
+    <div id="ai-chat-bubble" class="chat-bubble-trigger" style="display:none;" role="button" aria-label="Abrir asistente">💬</div>
 
-    <!-- Ventana chat -->
-    <div id="ai-chat-window" class="chat-window-modal">
+    <div id="ai-chat-window" class="chat-window-modal" role="dialog" aria-label="Asistente Comercial" aria-modal="true">
         <div class="chat-header">
             <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:18px;">🧠</span>
+                <span style="font-size:18px;" aria-hidden="true">🧠</span>
                 <div style="display:flex; flex-direction:column;">
                     <span style="font-size:13px; font-weight:600;">Asistente Comercial</span>
                     <span style="font-size:10px; color:var(--success);">Con datos reales de tu cartera</span>
                 </div>
             </div>
-            <div id="close-chat" class="chat-close-btn">✕</div>
+            <div id="close-chat" class="chat-close-btn" role="button" aria-label="Cerrar chat">✕</div>
         </div>
-        <div id="ai-chat-messages" class="chat-messages-container">
+        <div id="ai-chat-messages" class="chat-messages-container" aria-live="polite">
             <div class="msg-row ia-row">
                 <div class="chat-bubble ia-bubble">
                     Hola 👋 Soy tu asistente con acceso a tus datos reales. Pregúntame sobre tus comisiones del mes, renovaciones pendientes, qué te falta para el bono, o estrategias de venta.
@@ -105,18 +136,49 @@
             </div>
         </div>
         <div class="chat-input-area">
-            <input id="ai-chat-input" placeholder="Pregunta sobre tu negocio..." autocomplete="off">
-            <button id="ai-chat-send" class="chat-send-btn">↑</button>
+            <input
+                id="ai-chat-input"
+                placeholder="Pregunta sobre tu negocio..."
+                autocomplete="off"
+                aria-label="Mensaje al asistente"
+            >
+            <button id="ai-chat-send" class="chat-send-btn" aria-label="Enviar mensaje">↑</button>
         </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════
+         APP ENTRY POINT
+         type="module" garantiza:
+           - Carga diferida (no bloquea el parser)
+           - Scope aislado (sin contaminación global)
+           - Soporte nativo de import/export
+         Debe ser el último script antes de </body>.
+    ═══════════════════════════════════════════════════════ -->
     <script type="module" src="app.js"></script>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SERVICE WORKER
+         Separado del módulo principal intencionalmente:
+         - El SW debe registrarse SIEMPRE, incluso si app.js falla
+         - No puede estar dentro de un module script (scope distinto)
+         - 'load' event garantiza que no compite con recursos críticos
+         IMPORTANTE: Este bloque reemplaza el KILL SW que existía antes.
+         El SW ahora es el mecanismo de caché oficial de la PWA.
+    ═══════════════════════════════════════════════════════ -->
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () =>
-                navigator.serviceWorker.register('./service-worker.js', { scope: './' }).catch(console.error)
-            );
+            window.addEventListener('load', function () {
+                navigator.serviceWorker
+                    .register('./service-worker.js', { scope: './' })
+                    .then(function (reg) {
+                        console.log('[SW] Registrado:', reg.scope);
+                    })
+                    .catch(function (err) {
+                        console.error('[SW] Error de registro:', err);
+                    });
+            });
         }
     </script>
+
 </body>
 </html>
